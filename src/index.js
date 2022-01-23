@@ -47,6 +47,7 @@ window.$fxhashFeatures = {
   shadow,
   density: numCircles > 500 ? 'High' : (numCircles < 200 ? 'Low' : 'Medium')
 }
+// eslint-disable-next-line no-console
 console.table(window.$fxhashFeatures)
 
 const sketch = function (p5) {
