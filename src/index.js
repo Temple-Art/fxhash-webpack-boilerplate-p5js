@@ -1,6 +1,6 @@
 import p5 from "p5";
 import { createCols } from './utils'
-import { FXInit, FXRandomBetween, getWeightedOption } from "@liamegan1/fxhash-helpers"
+import { FXInit, FXRandomBool, getWeightedOption } from "@liamegan1/fxhash-helpers"
 
 // note about the fxrand() function 
 // when the "fxhash" is always the same, it will generate the same sequence of
@@ -24,6 +24,7 @@ let colors = createCols(palettes[palette])
 const backgroundColor = colors.pop()
 
 const numCircles = ~~(fxrand()*500) + 100;
+const shadow = FXRandomBool(0.9)
 
 
 //----------------------
@@ -41,7 +42,8 @@ const numCircles = ~~(fxrand()*500) + 100;
 // }
 window.$fxhashFeatures = {
   palette,
-  "Density": numCircles > 500?"High":(numCircles<200?"Low":"Medium")
+  shadow,
+  "density": numCircles > 500?"High":(numCircles<200?"Low":"Medium")
 }
 console.table(window.$fxhashFeatures)
 
@@ -59,13 +61,20 @@ let sketch = function(p5) {
   p5.draw = function() {
     p5.randomSeed(seed);
     p5.noiseSeed(seed)
+    
     p5.background(backgroundColor)
+
+    p5.drawingContext.shadowOffsetX = 10;
+    p5.drawingContext.shadowOffsetY = 10;
+    p5.drawingContext.shadowBlur = 20;
+    p5.drawingContext.shadowColor = "#00000099"
+
     p5.push();
     for (var i = numCircles; i >= 0; i--) {
       let c = p5.color(p5.random(colors));
       p5.fill(c);
       p5.noStroke();
-      p5.circle(p5.random()*s, p5.random()*s, p5.abs(p5.randomGaussian(0, s/20)));
+      p5.circle(p5.random()*s, p5.random()*s, p5.abs(p5.randomGaussian(0, m*50)));
     }
     p5.pop();
     fxpreview()
