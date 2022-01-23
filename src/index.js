@@ -1,10 +1,30 @@
-// these are the variables you can use as inputs to your algorithms
-console.log(fxhash)   // the 64 chars hex number fed to your algorithm
-console.log(fxrand()) // deterministic PRNG function, use it instead of Math.random()
+import p5 from "p5";
+import { createCols } from './utils'
+import { FXInit, FXRandomBetween, getWeightedOption } from "@liamegan1/fxhash-helpers"
 
 // note about the fxrand() function 
 // when the "fxhash" is always the same, it will generate the same sequence of
 // pseudo random numbers, always
+
+// these are the variables you can use as inputs to your algorithms
+// console.log(fxhash)   // the 64 chars hex number fed to your algorithm
+// console.log(fxrand()) // deterministic PRNG function, use it instead of Math.random()
+console.log('By Camille Roux (@CamilleRouxArt) - ' + fxhash)
+FXInit( fxrand );
+const seed = ~~(fxrand()*123456789);
+let s;
+let m;
+
+const palettes = ['https://coolors.co/fdfffc-2ec4b6-ff9f1c-e71d36-011627', 'https://coolors.co/011627-ff9f1c-2ec4b6-e71d36-fdfffc']
+const palette = getWeightedOption([
+  [0, 90],
+  [1, 10],
+]);
+let colors = createCols(palettes[palette])
+const backgroundColor = colors.pop()
+
+const numCircles = ~~(fxrand()*500) + 100;
+
 
 //----------------------
 // defining features
@@ -19,11 +39,43 @@ console.log(fxrand()) // deterministic PRNG function, use it instead of Math.ran
 //   "Number of lines": 10,
 //   "Inverted": true
 // }
+window.$fxhashFeatures = {
+  palette,
+  "Density": numCircles > 500?"High":(numCircles<200?"Low":"Medium")
+}
+console.table(window.$fxhashFeatures)
 
-// this code writes the values to the DOM as an example
-const container = document.createElement("div")
-container.innerText = `
-  random hash: ${fxhash}\n
-  some pseudo random values: [ ${fxrand()}, ${fxrand()}, ${fxrand()}, ${fxrand()}, ${fxrand()},... ]\n
-`
-document.body.prepend(container)
+
+let sketch = function(p5) {
+
+  p5.setup = function() {
+    p5.noLoop();
+    s = p5.min(p5.windowWidth, p5.windowHeight);
+    p5.createCanvas(s, s);
+
+    m = s / 1000
+  };
+
+  p5.draw = function() {
+    p5.randomSeed(seed);
+    p5.noiseSeed(seed)
+    p5.background(backgroundColor)
+    p5.push();
+    for (var i = numCircles; i >= 0; i--) {
+      let c = p5.color(p5.random(colors));
+      p5.fill(c);
+      p5.noStroke();
+      p5.circle(p5.random()*s, p5.random()*s, p5.abs(p5.randomGaussian(0, s/20)));
+    }
+    p5.pop();
+    fxpreview()
+  };
+
+  p5.windowResized = function() {
+    s = p5.min(p5.windowWidth, p5.windowHeight);
+    p5.resizeCanvas(s, s);
+    m = s / 1000
+  }
+}
+
+let myp5 = new p5(sketch, window.document.body);
