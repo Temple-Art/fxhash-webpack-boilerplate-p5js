@@ -8,6 +8,8 @@ body {
   align-items: center;
   justify-content: center;
   background-color: #011627;
+    /* leave it to hide the scrollbars */
+  overflow: hidden;
 }
 
 canvas {
